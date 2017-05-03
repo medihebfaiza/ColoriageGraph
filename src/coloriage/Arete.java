@@ -32,11 +32,6 @@ public class Arete {
     }
 	}
 
-  /**
-  * Arete destructor
-  */
-
-
 	/**
 	* Returns value of numero
 	* @return
