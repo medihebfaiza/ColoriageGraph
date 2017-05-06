@@ -60,7 +60,7 @@ public class Graph{
 	*/
 	@Override
 	public String toString() {
-		return "Graph [aretes=" + aretes + ", sommets=" + sommets + "]";
+		return "Graph {" + aretes + ", sommets=" + sommets + "}";
 	}
 
   /**
@@ -97,15 +97,25 @@ public class Graph{
   */
   public Boolean removeSommet(Sommet s){
     if (sommets.indexOf(s) != -1){
+      sommets.remove(sommets.indexOf(s)) ;
+      return true ;
+    }
+    return false ;
+  }
+
+  /**
+  *
+  */
+  public Boolean removeSommetAndAretes(Sommet s){
+    if (sommets.indexOf(s) != -1){
       int i ;
       /* Enlever les aretes contenant le sommet s */
-
-      for (i=0 ; i<aretes.size() ; i++){
-        if (aretes.get(i).getSommetA() == s) {
-          removeArete(aretes.get(i)) ;
+      for (Arete a : aretes){
+        if (a.getSommetA() == s) {
+          removeArete(a) ;
         }
-        else if (aretes.get(i).getSommetB() == s){
-          removeArete(aretes.get(i)) ;
+        else if (a.getSommetB() == s){
+          removeArete(a) ;
         }
       }
       sommets.remove(sommets.indexOf(s)) ;
@@ -113,6 +123,7 @@ public class Graph{
     }
     return false ;
   }
+
   /**
   *@return l'indice du sommet de degre minimim
   *@param
@@ -147,22 +158,25 @@ public class Graph{
   */
   public void colorierSommet(Sommet s, int k){
     boolean[] couleurPrise = new boolean[k] ; // couleurPrise[k] = true => couleur k+1 prise
-    // pas besoin de initialiser, valuers par défault false
+    // pas besoin de initialiser, valeurs par défault false
     // on regarde que les voisins qui ont couleurs != -1
     for (Arete a : aretes){
-      if (s == a.getSommetA()) {
-        couleurPrise[a.getSommetB().getColor()-1] = true ;
-      }
-      else if (s == a.getSommetB()){
-        couleurPrise[a.getSommetA().getColor()-1] = true ;
+      if (!a.getPreference()){
+        if (s == a.getSommetA() && a.getSommetB().getColor()!=-1) {
+          couleurPrise[a.getSommetB().getColor()-1] = true ;
+        }
+        else if (s == a.getSommetB() && a.getSommetA().getColor()!=-1){
+          couleurPrise[a.getSommetA().getColor()-1] = true ;
+        }
       }
     }
     //on attribue à s la première couleur disponnible
     int i = 0 ;
-    while (s.getColor() == 0){
+    while (s.getColor() == 0 && i<k){
       if (couleurPrise[i] == false){
         s.setColor(i+1) ;
       }
+      i++ ;
     }
   }
 
@@ -176,78 +190,80 @@ public class Graph{
 
     /* Etape 1 */
     while (sommets.size()>0){
-        int indiceSommetMin = indiceSommetmin();
-        if (sommets.get(indiceSommetMin).getDegre() >= k){
-          int indiceSommetMax = indiceSommetmax();
-          sommets.get(indiceSommetMax).setColor(-1) ;
-          indiceSommetMin = indiceSommetMax;
+        Sommet s = sommets.get(indiceSommetmin());
+        if (s.getDegre() >= k){
+          s = sommets.get(indiceSommetmax()) ;
+          s.setColor(-1) ;
         }
-        pileSommets.add(sommets.get(indiceSommetMin)) ;
-        removeSommet(sommets.get(indiceSommetMin)) ;
+        pileSommets.add(s) ;
+        removeSommet(s) ;
         /*Empiler tous les aretes contenant le sommet de degre min*/
-        int i ;
-        for (i=0 ; i < aretes.size() ; i++){
-          if ((aretes.get(i).getSommetA() == sommets.get(indiceSommetMin)) || (aretes.get(i).getSommetB() == sommets.get(indiceSommetMin))) {
-            pileAretes.add(aretes.get(i)) ;
-            removeArete(aretes.get(i)) ;
-            i-- ;
+        Arete a ;
+        for (Iterator<Arete> iteratorAretes = aretes.iterator(); iteratorAretes.hasNext(); ) {
+          a = iteratorAretes.next() ;
+          if ((a.getSommetA() == s) || (a.getSommetB() == s)) {
+            a.getSommetA().decrementerDegre() ;
+            a.getSommetB().decrementerDegre() ;
+            pileAretes.add(a) ;
+            iteratorAretes.remove() ;
           }
         }
     }
 
     /* Etape 2 */
-    //
-    Sommet s = pileSommets.get(pileSommets.size()-1) ;
-    pileSommets.remove(pileSommets.size()-1) ; //dépiler
-    s.setColor(k) ;
-    sommets.add(s) ;
-    while (pileSommets.size()>0){
+    Sommet s ;
+    for (ListIterator<Sommet> iteratorSommets = pileSommets.listIterator(pileSommets.size()) ; iteratorSommets.hasPrevious(); ){
       //Etape 2.1
-      s = pileSommets.get(pileSommets.size()-1) ;
-      pileSommets.remove(pileSommets.size()-1) ; //dépiler
+      s = iteratorSommets.previous() ;
       sommets.add(s);
+      iteratorSommets.remove() ;
       //charger les aretes
-      //si s (le dernier sommet chargé) a encore une arte qui lui concerne dans la pile des aretes
+      //si s (le dernier sommet chargé) a encore une arete qui lui concerne dans la pile des aretes
       Arete a ;
-      boolean quitter = false ;
-      while ((s == pileAretes.get(pileAretes.size()-1).getSommetA() || s == pileAretes.get(pileAretes.size()-1).getSommetB()) && !quitter) {
+      boolean continuer = (s == pileAretes.get(pileAretes.size()-1).getSommetA()) || (s == pileAretes.get(pileAretes.size()-1).getSommetB()) ;
+      for (ListIterator<Arete> iteratorAretes = pileAretes.listIterator(pileAretes.size()); iteratorAretes.hasPrevious() && continuer; ) {
+        a = iteratorAretes.previous() ;
         // on regarde si c'est le sommetA ou le sommetB de l'arete
-        if (s == pileAretes.get(pileAretes.size()-1).getSommetA()){
+        if (s == a.getSommetA()){
           // si sommetB était dèja dépilé
-          if (sommets.contains(pileAretes.get(pileAretes.size()).getSommetB())){
-            a = pileAretes.get(pileAretes.size()-1) ;
-            pileAretes.remove(pileAretes.size()-1) ;
+          if (sommets.contains(a.getSommetB())){
+            a.getSommetA().incrementerDegre() ;
+            a.getSommetB().incrementerDegre() ;
             aretes.add(a) ;
+            iteratorAretes.remove() ;
           }
           else {
-            quitter = true ;
+            continuer = false ;
           }
         }
         else  {
           // si sommetA était dèja dépilé
-          if (sommets.contains(pileAretes.get(pileAretes.size()).getSommetA())){
-            a = pileAretes.get(pileAretes.size()-1) ;
-            pileAretes.remove(pileAretes.size()-1) ;
+          if (sommets.contains(a.getSommetA())){
+            a.getSommetA().incrementerDegre() ;
+            a.getSommetB().incrementerDegre() ;
             aretes.add(a) ;
+            iteratorAretes.remove() ;
           }
           else {
-            quitter = true ;
+            continuer = false ;
           }
         }
-
-
+        if (pileAretes.size() != 0){
+          continuer = continuer && (s == pileAretes.get(pileAretes.size()-1).getSommetA()) || (s == pileAretes.get(pileAretes.size()-1).getSommetB()) ;
+        }
       }
       // Etape 2.2
       if (s.getColor() != -1) {
         colorierSommet(s,k) ;
       }
-
-
     }
 
     /* Etape 3 */
     // faire les sommets spilled
-
+    for (Iterator<Sommet> iteratorSommets = sommets.iterator(); iteratorSommets.hasNext(); ) {
+      s = iteratorSommets.next() ;
+      colorierSommet(s,k) ;
+    }
   }
 
 }

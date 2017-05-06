@@ -1,5 +1,7 @@
 package coloriage ;
 
+import coloriage.Color ;
+
 public class Sommet{
   private String nom ;
   private int color ; // 0 : blanc ,
@@ -78,7 +80,17 @@ public class Sommet{
 	*/
 	@Override
 	public String toString() {
-		return "Sommet [nom=" + nom + ", color=" + color + ", degre=" + degre + "]";
+    switch(color){
+      case -1 : return Color.whitebg + Color.black + nom + Color.reset + "°" + degre ;
+      case 0 : return Color.white + nom + Color.reset + "°" + degre ;
+      case 1 : return Color.red + nom + Color.reset + "°" + degre ;
+      case 2 : return Color.green + nom + Color.reset + "°" + degre ;
+      case 3 : return Color.yellow + nom + Color.reset + "°" + degre ;
+      case 4 : return Color.blue + nom + Color.reset + "°" + degre ;
+      case 5 : return Color.purple + nom + Color.reset + "°" + degre ;
+      case 6 : return Color.cyan + nom + Color.reset + "°" + degre ;
+      default : return nom + "(color=" + color + ")°" + degre ;
+    }
 	}
 
   /**

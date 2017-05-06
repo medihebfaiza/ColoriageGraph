@@ -103,6 +103,12 @@ public class Arete {
 	*/
 	@Override
 	public String toString() {
-		return "Arete [numero=" + numero + ", preference=" + preference + ", sommetA=" + sommetA + ", sommetB=" + sommetB + "]";
+    if (preference) {
+      return "(" + numero + ",pref" + "," + sommetA + "," + sommetB + ")";
+    }
+    else {
+      return "(" + numero + ",interf" + "," + sommetA + "," + sommetB + ")";
+    }
+
 	}
 }
