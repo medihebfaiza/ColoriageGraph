@@ -158,6 +158,7 @@ public class Graph{
   */
   public void colorierSommet(Sommet s, int k){
     boolean[] couleurPrise = new boolean[k] ; // couleurPrise[k] = true => couleur k+1 prise
+    boolean[] couleurPref = new boolean[k] ; // couleurPreference[k] = true => priorité couleur k+1 priorité
     // pas besoin de initialiser, valeurs par défault false
     // on regarde que les voisins qui ont couleurs != -1
     for (Arete a : aretes){
@@ -169,10 +170,26 @@ public class Graph{
           couleurPrise[a.getSommetA().getColor()-1] = true ;
         }
       }
+      else {
+        if (s == a.getSommetA() && a.getSommetB().getColor()!=-1) {
+          couleurPref[a.getSommetB().getColor()-1] = true ;
+        }
+        else if (s == a.getSommetB() && a.getSommetA().getColor()!=-1){
+          couleurPref[a.getSommetA().getColor()-1] = true ;
+        }
+      }
     }
-    //on attribue à s la première couleur disponnible
+    //si s a une couleur de preference disponible on lui attribue
     int i = 0 ;
-    while (s.getColor() == 0 && i<k){
+    while ((s.getColor() == 0 || s.getColor() == -1) && i<k){
+      if (couleurPref[i] == true && couleurPrise[i] == false){
+        s.setColor(i+1) ;
+      }
+      i++ ;
+    }
+    //sinon on attribue à s la première couleur disponible
+    i = 0 ;
+    while ((s.getColor() == 0 || s.getColor() == -1) && i<k){ // ici 0 et -1 ne sont pas des couleurs
       if (couleurPrise[i] == false){
         s.setColor(i+1) ;
       }
@@ -259,10 +276,12 @@ public class Graph{
     }
 
     /* Etape 3 */
-    // faire les sommets spilled
+    // un dernier passage pour les sommets spillés pour un coloriage optimiste
     for (Iterator<Sommet> iteratorSommets = sommets.iterator(); iteratorSommets.hasNext(); ) {
       s = iteratorSommets.next() ;
-      colorierSommet(s,k) ;
+      if (s.getColor() == -1){
+        colorierSommet(s,k) ;
+      }
     }
   }
 
