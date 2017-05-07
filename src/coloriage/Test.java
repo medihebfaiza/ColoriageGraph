@@ -3,6 +3,10 @@ package coloriage ;
 import coloriage.* ;
 import java.util.* ;
 
+/**
+* The main class for testing
+* @author FAIZA Mohamed Iheb & DALGER Chloé
+*/
 public class Test{
   public static void main(String[] args){
     Sommet s1 = new Sommet("1") ;
@@ -24,12 +28,10 @@ public class Test{
     aretes.add(a3) ;
     aretes.add(a4) ;
     Graph g = new Graph(aretes,sommets) ;
-    System.out.println("Before :") ;
+    System.out.println("Before coloring :") ;
     System.out.println(g) ;
     g.colorier(2) ;
-    System.out.println("After :") ;
+    System.out.println("After coloring :") ;
     System.out.println(g) ;
-    //g.removeSommet(s3) ;
-    //System.out.println(g) ;
   }
 }

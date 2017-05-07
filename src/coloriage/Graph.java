@@ -3,6 +3,10 @@ package coloriage;
 import coloriage.* ;
 import java.util.* ;
 
+/**
+* The class that represents the whole Graph
+* @author FAIZA Mohamed Iheb & DALGER Chloé
+*/
 public class Graph{
   private ArrayList<Arete> aretes ;
   private ArrayList<Sommet> sommets ;
@@ -24,7 +28,7 @@ public class Graph{
 
 	/**
 	* Returns value of aretes
-	* @return
+	* @return the Edges ArrayList
 	*/
 	public ArrayList<Arete> getAretes() {
 		return aretes;
@@ -32,7 +36,7 @@ public class Graph{
 
 	/**
 	* Sets new value of aretes
-	* @param
+	* @param aretes the new ArrayList of Edges
 	*/
 	public void setAretes(ArrayList<Arete> aretes) {
 		this.aretes = aretes;
@@ -40,7 +44,7 @@ public class Graph{
 
 	/**
 	* Returns value of sommets
-	* @return
+	* @return the Nodes ArrayList
 	*/
 	public ArrayList<Sommet> getSommets() {
 		return sommets;
@@ -48,7 +52,7 @@ public class Graph{
 
 	/**
 	* Sets new value of sommets
-	* @param
+	* @param sommets the new Nodes ArrayList
 	*/
 	public void setSommets(ArrayList<Sommet> sommets) {
 		this.sommets = sommets;
@@ -56,7 +60,7 @@ public class Graph{
 
 	/**
 	* Create string representation of Graph for printing
-	* @return
+	* @return the Graph's string representation
 	*/
 	@Override
 	public String toString() {
@@ -64,36 +68,8 @@ public class Graph{
 	}
 
   /**
-  *
-  */
-  public Boolean addArete(Arete a){
-    return this.aretes.add(a) ;
-  }
-
-  /**
-  *
-  */
-  public Boolean removeArete(Arete a){
-      if (aretes.indexOf(a) != -1) {
-        if (!aretes.get(aretes.indexOf(a)).getPreference()) {
-          aretes.get(aretes.indexOf(a)).getSommetA().decrementerDegre() ;
-          aretes.get(aretes.indexOf(a)).getSommetB().decrementerDegre() ;
-        }
-        aretes.remove(aretes.indexOf(a)) ;
-        return true ;
-      }
-      return false ;
-  }
-
-  /**
-  *
-  */
-  public Boolean addSommet(Sommet s){
-    return this.sommets.add(s) ;
-  }
-
-  /**
-  *
+  * Removes a given Node from the Nodes ArrayList
+  * @param s the Node to be removed
   */
   public Boolean removeSommet(Sommet s){
     if (sommets.indexOf(s) != -1){
@@ -104,29 +80,8 @@ public class Graph{
   }
 
   /**
-  *
-  */
-  public Boolean removeSommetAndAretes(Sommet s){
-    if (sommets.indexOf(s) != -1){
-      int i ;
-      /* Enlever les aretes contenant le sommet s */
-      for (Arete a : aretes){
-        if (a.getSommetA() == s) {
-          removeArete(a) ;
-        }
-        else if (a.getSommetB() == s){
-          removeArete(a) ;
-        }
-      }
-      sommets.remove(sommets.indexOf(s)) ;
-      return true ;
-    }
-    return false ;
-  }
-
-  /**
-  *@return l'indice du sommet de degre minimim
-  *@param
+  * Returns the index of the Node having the smallest degree
+  * @return the index of the Node having the smallest degree
   */
   public int indiceSommetmin(){
     int indiceMin = 0 ;
@@ -139,8 +94,9 @@ public class Graph{
     return indiceMin ;
   }
 
-  /*
-  *
+  /**
+  * Returns the index of the Node having the biggest degree
+  * @return the index of the Node having the biggest degree
   */
   public int indiceSommetmax(){
     int indiceMax = 0 ;
@@ -153,8 +109,10 @@ public class Graph{
     return indiceMax ;
   }
 
-  /*
-  *
+  /**
+  * The function that attributes the right color to a given Node
+  * @param s the Node to be colored
+  * @param k the number of colors to use
   */
   public void colorierSommet(Sommet s, int k){
     boolean[] couleurPrise = new boolean[k] ; // couleurPrise[k] = true => couleur k+1 prise
@@ -198,21 +156,26 @@ public class Graph{
   }
 
   /**
-  * Colorier le graphe
-  *@param k le nombre de couleurs > 0
+  * The function that colors the Graph using Kempe's graph-coloring algorithm.
+  * Instead of Stacks we are using ArrayLists.
+  * Step 1 : Stack the Nodes and their concerned Edges in right order and Spill the Nodes with degrees superior or equal the number of colors k.
+  * Step 2 : Unstack the Nodes one by one and attribute colors.
+  * Step 3 : Try to color the spilled Nodes for an optimistic coloring.
+  * The reason why we are using Iterators in this function to read the ArrayList is because we are modifying them while going through them.
+  * @param k number of colors > 0
   */
   public void colorier(int k){
-    ArrayList<Sommet> pileSommets = new ArrayList<Sommet>() ;
-    ArrayList<Arete> pileAretes = new ArrayList<Arete>() ;
+    ArrayList<Sommet> listeSommets = new ArrayList<Sommet>() ;
+    ArrayList<Arete> listeAretes = new ArrayList<Arete>() ;
 
     /* Etape 1 */
     while (sommets.size()>0){
         Sommet s = sommets.get(indiceSommetmin());
         if (s.getDegre() >= k){
           s = sommets.get(indiceSommetmax()) ;
-          s.setColor(-1) ;
+          s.setColor(-1) ; // color = -1 --> Node is spilled
         }
-        pileSommets.add(s) ;
+        listeSommets.add(s) ;
         removeSommet(s) ;
         /*Empiler tous les aretes contenant le sommet de degre min*/
         Arete a ;
@@ -221,7 +184,7 @@ public class Graph{
           if ((a.getSommetA() == s) || (a.getSommetB() == s)) {
             a.getSommetA().decrementerDegre() ;
             a.getSommetB().decrementerDegre() ;
-            pileAretes.add(a) ;
+            listeAretes.add(a) ;
             iteratorAretes.remove() ;
           }
         }
@@ -229,7 +192,7 @@ public class Graph{
 
     /* Etape 2 */
     Sommet s ;
-    for (ListIterator<Sommet> iteratorSommets = pileSommets.listIterator(pileSommets.size()) ; iteratorSommets.hasPrevious(); ){
+    for (ListIterator<Sommet> iteratorSommets = listeSommets.listIterator(listeSommets.size()) ; iteratorSommets.hasPrevious(); ){
       //Etape 2.1
       s = iteratorSommets.previous() ;
       sommets.add(s);
@@ -237,8 +200,8 @@ public class Graph{
       //charger les aretes
       //si s (le dernier sommet chargé) a encore une arete qui lui concerne dans la pile des aretes
       Arete a ;
-      boolean continuer = (s == pileAretes.get(pileAretes.size()-1).getSommetA()) || (s == pileAretes.get(pileAretes.size()-1).getSommetB()) ;
-      for (ListIterator<Arete> iteratorAretes = pileAretes.listIterator(pileAretes.size()); iteratorAretes.hasPrevious() && continuer; ) {
+      boolean continuer = (s == listeAretes.get(listeAretes.size()-1).getSommetA()) || (s == listeAretes.get(listeAretes.size()-1).getSommetB()) ;
+      for (ListIterator<Arete> iteratorAretes = listeAretes.listIterator(listeAretes.size()); iteratorAretes.hasPrevious() && continuer; ) {
         a = iteratorAretes.previous() ;
         // on regarde si c'est le sommetA ou le sommetB de l'arete
         if (s == a.getSommetA()){
@@ -265,8 +228,8 @@ public class Graph{
             continuer = false ;
           }
         }
-        if (pileAretes.size() != 0){
-          continuer = continuer && (s == pileAretes.get(pileAretes.size()-1).getSommetA()) || (s == pileAretes.get(pileAretes.size()-1).getSommetB()) ;
+        if (listeAretes.size() != 0){
+          continuer = continuer && (s == listeAretes.get(listeAretes.size()-1).getSommetA()) || (s == listeAretes.get(listeAretes.size()-1).getSommetB()) ;
         }
       }
       // Etape 2.2

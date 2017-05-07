@@ -2,9 +2,13 @@ package coloriage ;
 
 import coloriage.Color ;
 
+/**
+* The class that represents a Node
+* @author FAIZA Mohamed Iheb & DALGER Chloé
+*/
 public class Sommet{
   private String nom ;
-  private int color ; // 0 : blanc ,
+  private int color ; // 0 : blanc (not colored) , -1 : noir (spilled)
   private int degre ;
 
 
@@ -17,6 +21,7 @@ public class Sommet{
 
 	/**
 	* Default Sommet constructor
+  * @param nom the Node's name
 	*/
 	public Sommet(String nom) {
 		this.nom = nom ;
@@ -27,7 +32,7 @@ public class Sommet{
 
 	/**
 	* Returns value of nom
-	* @return
+	* @return the Node's name
 	*/
 	public String getNom() {
 		return nom;
@@ -35,7 +40,7 @@ public class Sommet{
 
 	/**
 	* Sets new value of nom
-	* @param
+	* @param nom the Node's new name
 	*/
 	public void setNom(String nom) {
 		this.nom = nom;
@@ -43,7 +48,7 @@ public class Sommet{
 
 	/**
 	* Returns value of color
-	* @return
+	* @return the Node's color
 	*/
 	public int getColor() {
 		return color;
@@ -51,7 +56,7 @@ public class Sommet{
 
 	/**
 	* Sets new value of color
-	* @param
+	* @param color the Node's new color
 	*/
 	public void setColor(int color) {
 		this.color = color;
@@ -59,7 +64,7 @@ public class Sommet{
 
 	/**
 	* Returns value of degre
-	* @return
+	* @return the Node's degree (number of neighbors)
 	*/
 	public int getDegre() {
 		return degre;
@@ -67,7 +72,7 @@ public class Sommet{
 
 	/**
 	* Sets new value of degre
-	* @param
+	* @param degre the Node's new degree
 	*/
 	public void setDegre(int degre) {
 		this.degre = degre;
@@ -76,7 +81,7 @@ public class Sommet{
 
 	/**
 	* Create string representation of Sommet for printing
-	* @return
+	* @return string representation of the Node
 	*/
 	@Override
 	public String toString() {
@@ -94,14 +99,14 @@ public class Sommet{
 	}
 
   /**
-  *
+  * increase the Node's degree by 1
   */
   public void incrementerDegre(){
     this.degre++ ;
   }
 
   /**
-  *
+  * reduce the Node's degree by 1
   */
   public void decrementerDegre(){
     this.degre-- ;

@@ -1,5 +1,9 @@
 package coloriage ;
 
+/**
+* A class storing color codes for an easier use
+* @author FAIZA Mohamed Iheb & DALGER Chloé
+*/
 public class Color{
   public static final String reset = "\u001B[0m";
   public static final String black = "\u001B[30m";
